@@ -1,0 +1,94 @@
+{% extends 'index.html' %}
+
+{% block content %}
+<div class="dashboard">
+
+    <!-- Baris ke Nol -->
+    <!-- Baris ke Nol -->
+    <div class="card card-medium-text">
+        <h2 class="card-title">This Month</h2>
+        <div id="monthExp" class="expense-container"></div>
+    </div>
+    <div class="card card-medium-text">
+        <h2 class="card-title">This Week</h2>
+        <div id="weekExp" class="expense-container"></div>
+    </div>
+    <div class="card card-medium-text">
+        <h2 class="card-title">Today</h2>
+        <div id="todayExp" class="expense-container"></div>
+    </div>
+
+    <!-- Baris ke Nol 2 -->
+      <div class="card card-medium-text">
+        <h2 class="card-title">Avg Daily (This Month)</h2>
+        <div id="avgThisMonth" class="expense-container"></div>
+    </div>
+    <div class="card card-medium-text">
+        <h2 class="card-title">Change in Month</h2>
+        <div id="changeInMonth" class="expense-container"></div>
+    </div>
+    <div class="card card-medium-text">
+        <h2 class="card-title">Change in Week</h2>
+        <div id="changeInWeek" class="expense-container"></div>
+    </div>
+
+    <!-- Baris ke Nol 3 -->
+    <div class="card card-medium-text">
+        <h2 class="card-title">Last 12 Month Spending</h2>
+        <div id="Exp12Month" class="expense-container"></div>
+    </div>
+    <div class="card card-medium-text">
+        <h2 class="card-title">TTM Average Spending</h2>
+        <div id="avgTTM" class="expense-container"></div>
+    </div>
+    <div class="card card-medium-text">
+        <h2 class="card-title">TTM Median Spending</h2>
+        <div id="medianTTM" class="expense-container"></div>
+    </div>
+
+<!-- =============================================================== -->
+
+  <!-- Baris pertama -->
+  <div class="card card-large">
+    <h2 class="card-title">Sales Overview (Line Chart)</h2>
+    <div id="lineChart" style="width: 100%; height: 300px;"></div>
+  </div>
+  <div class="card card-medium">
+    <h2 class="card-title">Revenue Breakdown (Doughnut Chart)</h2>
+    <div id="doughnutChart1" style="width: 100%; height: 300px;"></div>
+  </div>
+
+  <!-- Baris kedua -->
+  <div class="card card-medium">
+    <h2 class="card-title">Revenue Breakdown (Doughnut Chart)</h2>
+    <div id="doughnutChart2" style="width: 100%; height: 300px;"></div>
+  </div>
+  <div class="card card-large">
+    <h2 class="card-title">User Growth (Bar Chart)</h2>
+    <div id="barChart" style="width: 100%; height: 300px;"></div>
+  </div>
+  <div class="card card-medium">
+    <h2 class="card-title">Revenue Breakdown (Doughnut Chart)</h2>
+    <div id="doughnutChart4" style="width: 100%; height: 300px;"></div>
+  </div>
+  <div class="card card-medium">
+    <h2 class="card-title">Revenue Breakdown (Doughnut Chart)</h2>
+    <div id="doughnutChart5" style="width: 100%; height: 300px;"></div>
+  </div>
+
+  <!-- Baris ketiga -->
+  <div class="card card-medium">
+    <h2 class="card-title">Revenue Breakdown (Doughnut Chart)</h2>
+    <div id="doughnutChart3" style="width: 100%; height: 300px;"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.2/dist/echarts.min.js"></script> <!-- ECharts -->
+<script src="{{ url_for('static', filename='js/home.js') }}"></script> <!-- Home JS -->
+{% endblock %}
