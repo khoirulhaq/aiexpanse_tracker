@@ -141,30 +141,30 @@ def get_expenses():
         # Ubah data menjadi pandas DataFrame
         df = pd.DataFrame(expenses_query, columns=["nominal", "tanggal"])
         
-        # Pastikan kolom tanggal adalah datetime
-        df['tanggal'] = pd.to_datetime(df['tanggal'])
-        
+        # Pastikan kolom tanggal hanya berisi tanggal (tanpa jam)
+        df['tanggal'] = pd.to_datetime(df['tanggal']).dt.date
+
         # Mendapatkan tanggal hari ini
-        today = datetime.today()
+        today = datetime.today().date()
 
         # Bulan ini
         start_of_this_month = today.replace(day=1)
-        filtered_this_month = df[(df['tanggal'] >= start_of_this_month) & (df['tanggal'] < today)]
+        filtered_this_month = df[df['tanggal'] >= start_of_this_month]
 
         # Bulan kemarin
-        start_of_last_month = (start_of_this_month - pd.DateOffset(months=1)).replace(day=1)
-        end_of_last_month = start_of_this_month - pd.Timedelta(days=1)
+        start_of_last_month = (start_of_this_month - timedelta(days=1)).replace(day=1)
+        end_of_last_month = start_of_this_month - timedelta(days=1)
         filtered_last_month = df[(df['tanggal'] >= start_of_last_month) & (df['tanggal'] <= end_of_last_month)]
 
+        # Group by tanggal untuk bulan ini
         grouped_this_month = (
-            filtered_this_month.groupby(filtered_this_month['tanggal'].dt.date)['nominal']
+            filtered_this_month.groupby('tanggal')['nominal']
             .sum()
             .reset_index()
         )
 
         avg_daily = grouped_this_month['nominal'].mean()
         avg_daily_rounded = round(avg_daily, 2)
-
 
         # Hitung total nominal untuk bulan ini
         total_this_month = filtered_this_month['nominal'].sum()
@@ -173,13 +173,8 @@ def get_expenses():
         total_last_month = filtered_last_month['nominal'].sum()
 
         # Hitung perubahan persentase dari bulan sebelumnya ke bulan ini
-        if total_last_month != 0:  # Pastikan tidak ada pembagian dengan nol
-            change_in_month = ((total_this_month - total_last_month) / total_last_month) * 100
-        else:
-            change_in_month = float('inf') 
-
+        change_in_month = ((total_this_month - total_last_month) / total_last_month) * 100 if total_last_month != 0 else float('inf')
         change_in_month = round(change_in_month, 2)
-
 
         # Tanggal awal minggu ini dan minggu sebelumnya
         start_of_this_week = today - timedelta(days=today.weekday())  # Senin minggu ini
@@ -187,10 +182,8 @@ def get_expenses():
         start_of_last_week = start_of_this_week - timedelta(days=7)  # Senin minggu sebelumnya
         end_of_last_week = start_of_this_week - timedelta(days=1)    # Minggu minggu sebelumnya
 
-        # Filter data untuk minggu ini
+        # Filter data untuk minggu ini dan minggu sebelumnya
         filtered_this_week = df[(df['tanggal'] >= start_of_this_week) & (df['tanggal'] <= end_of_this_week)]
-
-        # Filter data untuk minggu sebelumnya
         filtered_last_week = df[(df['tanggal'] >= start_of_last_week) & (df['tanggal'] <= end_of_last_week)]
 
         # Hitung total nominal untuk minggu ini dan minggu sebelumnya
@@ -198,33 +191,28 @@ def get_expenses():
         total_last_week = filtered_last_week['nominal'].sum()
 
         # Hitung perubahan persentase dari minggu sebelumnya ke minggu ini
-        if total_last_week != 0:  # Hindari pembagian dengan nol
-            change_in_week = ((total_this_week - total_last_week) / total_last_week) * 100
-        else:
-            change_in_week = float('inf')  # Jika minggu sebelumnya 0, perubahan dianggap tak terhingga
-        
+        change_in_week = ((total_this_week - total_last_week) / total_last_week) * 100 if total_last_week != 0 else float('inf')
         change_in_week = round(change_in_week, 2)
 
+        # Pengeluaran hari ini
+        today_expenses = df[df['tanggal'] == today]['nominal'].sum()
 
-        today_expenses = df[df['tanggal'] >= today]['nominal'].sum()
-
-        df['year_month'] = df['tanggal'].dt.to_period('M')
+        # Grouping berdasarkan bulan (tanpa jam)
+        df['year_month'] = pd.to_datetime(df['tanggal']).dt.to_period('M')
 
         # Group by per bulan dengan agregasi sum
         monthly_data = df.groupby('year_month')['nominal'].sum().reset_index()
 
         # Konversi kembali 'year_month' menjadi datetime untuk perhitungan waktu
-        monthly_data['year_month'] = monthly_data['year_month'].dt.to_timestamp()
+        monthly_data['year_month'] = monthly_data['year_month'].dt.to_timestamp().dt.date
 
         # Filter data 12 bulan terakhir
-        last_12_months = monthly_data[monthly_data['year_month'] >= (monthly_data['year_month'].max() - pd.DateOffset(months=12))]
+        last_12_months = monthly_data[monthly_data['year_month'] >= (max(monthly_data['year_month']) - timedelta(days=365))]
 
         # Hitung rata-rata dan median dari total nominal per bulan
         average_12_months = last_12_months['nominal'].mean()
         median_12_months = last_12_months['nominal'].median()
-
         total_12_months = last_12_months['nominal'].sum()
-
 
         # Data untuk dikembalikan ke frontend
         expenses = {
@@ -256,6 +244,7 @@ def get_expenses():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
     
 @app.route('/api/sales-data', methods=['GET'])
 def get_sales_data():

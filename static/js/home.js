@@ -116,6 +116,14 @@ fetch('/api/expenses')
     const monthExpElement = document.getElementById('monthExp');
     const weekExpElement = document.getElementById('weekExp');
     const todayExpElement = document.getElementById('todayExp');
+
+    const avgExpElement = document.getElementById('avgThisMonth');
+    const changeInMonthElement = document.getElementById('changeInMonth');
+    const changeInWeekElement = document.getElementById('changeInWeek');
+
+    const Exp12MonthElement = document.getElementById('Exp12Month');
+    const avgTTMElement = document.getElementById('avgTTM');
+    const medianTTMElement = document.getElementById('medianTTM');
     
     // Menambahkan class typing-effect untuk memulai animasi pengetikan
     monthExpElement.innerHTML = `
@@ -125,7 +133,7 @@ fetch('/api/expenses')
     `;
     weekExpElement.innerHTML = `
       <div class="expense-container">
-        <span class="typing-effect">Rp ${data.week.toLocaleString('id-ID')}</span>
+        <span class="typing-effect">Rp ${data.this_week.toLocaleString('id-ID')}</span>
       </div>
     `;
     todayExpElement.innerHTML = `
@@ -133,6 +141,33 @@ fetch('/api/expenses')
         <span class="typing-effect">Rp ${data.today.toLocaleString('id-ID')}</span>
       </div>
     `;
+    avgExpElement.innerHTML = `
+      <div class="expense-container">
+        <span class="typing-effect">Rp ${data.avg_daily_month.toLocaleString('id-ID')}</span>
+      </div>
+    `;
+    changeInMonthElement.innerHTML = `
+      <div class="expense-container">
+        <span class="typing-effect">${data.change_in_month}</span>
+      </div>
+    `;
+    changeInWeekElement.innerHTML = `
+      <div class="expense-container">
+        <span class="typing-effect">${data.change_in_week}</span>
+    `;
+    Exp12MonthElement.innerHTML = `
+      <div class="expense-container">
+        <span class="typing-effect">Rp ${data.total_12_months.toLocaleString('id-ID')}</span>
+    `;
+    avgTTMElement.innerHTML = `
+      <div class="expense-container">
+        <span class="typing-effect">Rp ${data.average_12_months.toLocaleString('id-ID')}</span>
+    `;
+    medianTTMElement.innerHTML = `
+      <div class="expense-container">
+        <span class="typing-effect">Rp ${data.median_12_months.toLocaleString('id-ID')}</span>
+    `;
+
   })
   .catch(error => console.error('Error fetching expenses data:', error));
 
