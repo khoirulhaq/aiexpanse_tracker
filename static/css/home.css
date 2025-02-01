@@ -77,7 +77,7 @@ body, h1, h2, p, canvas {
 
 /* Menampilkan data dengan gaya khusus */
 .card-medium-text .expense-container {
-    font-size: 36px; /* Membuat teks lebih besar */
+    font-size: 40px; /* Membuat teks lebih besar */
     /* color: #28a745; Menambahkan warna hijau untuk data */
     font-weight: bold;
     text-align: center; /* Menyelaraskan teks ke tengah */

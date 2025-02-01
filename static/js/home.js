@@ -15,46 +15,52 @@ async function fetchData(url) {
 
 // Inisialisasi grafik setelah data diterima
 async function initializeCharts() {
-    const apiData = await fetchData('/api/sales-data'); // Endpoint API dari backend
+  const apiData = await fetchData('/api/sales-data'); // Endpoint API dari backend
 
-    if (apiData) {
-        // Data diambil dari API
-        const categories = apiData.categories; // Misalnya: ['Jan', 'Feb', 'Mar', 'Apr', 'May']
-        const salesData = apiData.sales;       // Misalnya: [120, 190, 300, 500, 200]
+  if (apiData) {
+      // Data diambil dari API
+      const categories = apiData.categories; // Misalnya: ['Jan', 'Feb', 'Mar', 'Apr', 'May']
+      const salesData = apiData.sales;       // Misalnya: [120, 190, 300, 500, 200]
 
-        // Line Chart (Sales Overview)
-        var lineChart = echarts.init(document.getElementById('lineChart'));
-        var lineOption = {
-            title: {
-                text: 'Monthly Expenses'
-            },
-            tooltip: {
-                trigger: 'axis'
-            },
-            legend: {
-                data: ['Expenses']
-            },
-            xAxis: {
-                type: 'category',
-                data: categories // Data dari API
-            },
-            yAxis: {
-                type: 'value'
-            },
-            series: [{
-                name: 'Expenses',
-                type: 'line',
-                data: salesData, // Data dari API
-                smooth: true,
-                color: '#007BFF'
-            }]
-        };
-        lineChart.setOption(lineOption);
-    }
+      // Line Chart (Sales Overview)
+      var lineChart = echarts.init(document.getElementById('lineChart'));
+      var lineOption = {
+          title: {
+              text: 'Monthly Expenses'
+          },
+          tooltip: {
+              trigger: 'axis'
+          },
+          legend: {
+              data: ['Expenses']
+          },
+          xAxis: {
+              type: 'category',
+              data: categories // Data dari API
+          },
+          yAxis: {
+              type: 'value'
+          },
+          series: [{
+              name: 'Expenses',
+              type: 'line',
+              data: salesData, // Data dari API
+              smooth: true,
+              color: '#007BFF'
+          }]
+      };
+      lineChart.setOption(lineOption);
+
+      // Menambahkan event listener resize
+      window.addEventListener('resize', function () {
+          lineChart.resize(); // Menyesuaikan ukuran grafik saat ukuran jendela berubah
+      });
+  }
 }
 
 // Panggil fungsi untuk memulai grafik
 initializeCharts();
+
 
 // Inisialisasi grafik Doughnut setelah data diterima
 async function initializeDoughnutChart() {
