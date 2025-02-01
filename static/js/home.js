@@ -108,6 +108,19 @@ async function initializeDoughnutChart() {
 initializeDoughnutChart();
 
 
+function setTextColor(elementId, value) {
+  const element = document.getElementById(elementId);
+  
+  // Memeriksa apakah nilai berubah positif atau negatif
+  if (value.includes('-')) {
+    // Jika negatif, beri warna merah
+    element.style.color = 'green';
+  } else {
+    // Jika positif, beri warna hijau
+    element.style.color = 'red';
+  }
+}
+
 // Fetch expenses data from API
 fetch('/api/expenses')
   .then(response => response.json())
@@ -124,6 +137,10 @@ fetch('/api/expenses')
     const Exp12MonthElement = document.getElementById('Exp12Month');
     const avgTTMElement = document.getElementById('avgTTM');
     const medianTTMElement = document.getElementById('medianTTM');
+
+    // Mengatur warna teks berdasarkan nilai positif atau negatif
+    setTextColor("changeInMonth", data.change_in_month);
+    setTextColor("changeInWeek", data.change_in_week);
     
     // Menambahkan class typing-effect untuk memulai animasi pengetikan
     monthExpElement.innerHTML = `
@@ -170,7 +187,6 @@ fetch('/api/expenses')
 
   })
   .catch(error => console.error('Error fetching expenses data:', error));
-
 
 
 // Bar Chart (User Growth)
