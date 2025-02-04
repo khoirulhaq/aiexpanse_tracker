@@ -163,7 +163,7 @@ def get_expenses():
             .reset_index()
         )
 
-        avg_daily = grouped_this_month['nominal'].mean()
+        avg_daily = (grouped_this_month['nominal'].sum()) / ((today - grouped_this_month['tanggal'].min()).days + 1)
         avg_daily_rounded = round(avg_daily, 2)
 
         # Hitung total nominal untuk bulan ini
