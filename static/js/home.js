@@ -62,52 +62,72 @@ async function initializeCharts() {
 initializeCharts();
 
 
+// Fungsi untuk memformat angka sebagai mata uang Indonesia
+function formatCurrency(value) {
+  return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR'
+  }).format(value);
+}
+
 // Inisialisasi grafik Doughnut setelah data diterima
 async function initializeDoughnutChart() {
-    const apiData = await fetchData('/api/revenue-data'); // Endpoint API untuk data Revenue Breakdown
+  const apiData = await fetchData('/api/revenue-data'); // Endpoint API untuk data Revenue Breakdown
 
-    if (apiData) {
-        // Data diambil dari API
-        const doughnutData = apiData.revenue; // Misalnya: [{value: 300, name: 'Product A'}, ...]
+  if (apiData) {
+      // Data diambil dari API
+      const doughnutData = apiData.revenue; // Misalnya: [{value: 300, name: 'Product A'}, ...]
 
-        // Doughnut Chart 1 (Revenue Breakdown)
-        var doughnutChart1 = echarts.init(document.getElementById('doughnutChart1'));
-        var doughnutOption1 = {
-            title: {
-                text: 'Revenue Breakdown',
-                subtext: 'Product A, B, C',
-                left: 'center'
-            },
-            series: [{
-                name: 'Revenue',
-                type: 'pie',
-                radius: ['40%', '70%'],
-                avoidLabelOverlap: false,
-                itemStyle: {
-                    borderRadius: 10,
-                    borderColor: '#fff',
-                    borderWidth: 2
-                },
-                label: {
-                    show: false,
-                    position: 'center'
-                },
-                emphasis: {
-                    label: {
-                        show: true,
-                        fontSize: 40,
-                        fontWeight: 'bold'
-                    }
-                },
-                labelLine: {
-                    show: false
-                },
-                data: doughnutData, // Data dari API
-                color: ['#007BFF', '#28A745', '#FFC107'] // Warna tetap atau bisa juga diambil dari API
-            }]
-        };
-        doughnutChart1.setOption(doughnutOption1);
-    }
+      // Doughnut Chart 1 (Revenue Breakdown)
+      var doughnutChart1 = echarts.init(document.getElementById('doughnutChart1'));
+      var doughnutOption1 = {
+          tooltip: {
+              trigger: 'item', // Tooltip muncul saat menghover item
+              formatter: function (params) {
+                  // Format tooltip dengan nama dan nilai nominal dalam mata uang Indonesia
+                  return `${params.name}: ${formatCurrency(params.value)}`;
+              }
+          },
+          legend: {
+              top: '5%', // Legend ditempatkan di bagian atas
+              left: 'center' // Legend berada di tengah horizontal
+          },
+          series: [
+              {
+                  name: 'Revenue',
+                  type: 'pie',
+                  radius: ['40%', '70%'], // Ukuran pie chart
+                  avoidLabelOverlap: false,
+                  itemStyle: {
+                      borderRadius: 10, // Border melengkung
+                      borderColor: '#fff', // Warna border putih
+                      borderWidth: 2 // Ketebalan border
+                  },
+                  label: {
+                      show: false, // Label tidak ditampilkan secara default
+                      position: 'center'
+                  },
+                  emphasis: {
+                      label: {
+                          show: true, // Label muncul saat hover
+                          fontSize: 40, // Ukuran font besar
+                          fontWeight: 'bold', // Font tebal
+                          formatter: function (params) {
+                              // Format label dengan nama item
+                              return params.name;
+                          }
+                      }
+                  },
+                  labelLine: {
+                      show: false // Tidak menampilkan garis label
+                  },
+                  data: doughnutData, // Data dari API
+                  color: ['#007BFF', '#28A745', '#FFC107', '#DC3545', '#6C757D'] // Warna tetap atau bisa juga diambil dari API
+              }
+          ]
+      };
+      doughnutChart1.setOption(doughnutOption1);
+  }
 }
 
 // Panggil fungsi untuk memulai grafik
@@ -195,28 +215,67 @@ fetch('/api/expenses')
   .catch(error => console.error('Error fetching expenses data:', error));
 
 
-// Bar Chart (User Growth)
+// Bar Chart (Monthly Category Spending)
 var barChart = echarts.init(document.getElementById('barChart'));
-var barOption = {
-  title: {
-    text: 'User Growth'
-  },
-  tooltip: {},
-  xAxis: {
-    type: 'category',
-    data: ['Week 1', 'Week 2', 'Week 3', 'Week 4']
-  },
-  yAxis: {
-    type: 'value'
-  },
-  series: [{
-    name: 'New Users',
-    type: 'bar',
-    data: [50, 100, 200, 150],
-    color: '#007BFF'
-  }]
-};
-barChart.setOption(barOption);
+
+async function fetchMonthlyCategoryData() {
+    const response = await fetch('/api/monthly-category-data');
+    const data = await response.json();
+    return data;
+}
+
+async function initializeBarChart() {
+    const chartData = await fetchMonthlyCategoryData();
+
+    // Konfigurasi ECharts
+    const barOption = {
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'shadow'
+            }
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: [
+            {
+                type: 'category',
+                data: chartData.categories, // Nama kategori sebagai sumbu x
+                axisTick: {
+                    alignWithLabel: true
+                }
+            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: [
+            {
+                name: 'Nominal',
+                type: 'bar',
+                barWidth: '60%',
+                data: chartData.values.map((value, index) => ({
+                    value: value,
+                    itemStyle: {
+                        color: chartData.colors[index] // Warna untuk setiap bar
+                    }
+                }))
+            }
+        ]
+    };
+
+    // Render grafik
+    barChart.setOption(barOption);
+}
+
+initializeBarChart();
+
 
 // Doughnut Chart 2 (Revenue Breakdown)
 var doughnutChart2 = echarts.init(document.getElementById('doughnutChart2'));

@@ -287,16 +287,82 @@ def get_sales_data():
 
 @app.route('/api/revenue-data', methods=['GET'])
 def get_revenue_data():
-    # Contoh data yang akan dikirim ke frontend
-    data = {
-        "revenue": [
-            {"value": 300, "name": "Product A"},
-            {"value": 150, "name": "Product B"},
-            {"value": 100, "name": "Product C"}
+    try:
+        # Mendapatkan tanggal awal dan akhir bulan ini
+        today = datetime.today()
+        first_day_of_month = datetime(today.year, today.month, 1)  # Awal bulan ini
+        next_month = first_day_of_month.replace(day=28) + timedelta(days=4)  # Hitung tanggal pertama bulan depan
+        last_day_of_month = next_month - timedelta(days=next_month.day)  # Akhir bulan ini
+
+        # Query untuk mengambil semua data expense bulan ini
+        query_result = (
+            db.session.query(Expense.dompet, Expense.nominal)
+            .filter(Expense.tanggal >= first_day_of_month, Expense.tanggal <= last_day_of_month)
+            .all()
+        )
+
+        # Konversi hasil query ke Pandas DataFrame
+        data = [{"dompet": row.dompet, "nominal": float(row.nominal)} for row in query_result]
+        df = pd.DataFrame(data)
+
+        # Jika tidak ada data, kembalikan list kosong
+        if df.empty:
+            return jsonify({"revenue": []})
+
+        # Menghitung total nominal untuk setiap dompet
+        wallet_totals = df.groupby('dompet')['nominal'].sum().reset_index(name='total')
+
+        # Konversi hasil ke format JSON
+        revenue_data = [
+            {"value": row['total'], "name": row['dompet']}
+            for _, row in wallet_totals.iterrows()
         ]
-    }
-    return jsonify(data)
+
+        return jsonify({"revenue": revenue_data})
+
+    except Exception as e:
+        # Handle error jika terjadi masalah
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/api/monthly-category-data', methods=['GET'])
+def get_monthly_category_data():
+    try:
+        # Hitung tanggal awal dan akhir bulan ini
+        today = datetime.today()
+        first_day_of_month = datetime(today.year, today.month, 1)  # Awal bulan ini
+        next_month = first_day_of_month.replace(day=28) + timedelta(days=4)  # Hitung tanggal pertama bulan depan
+        last_day_of_month = next_month - timedelta(days=next_month.day)  # Akhir bulan ini
+
+        # Query untuk mengambil data per kategori bulan ini
+        monthly_data = (
+            db.session.query(
+                Expense.kategori,
+                func.sum(Expense.nominal).label('total')
+            )
+            .filter(Expense.tanggal >= first_day_of_month, Expense.tanggal <= last_day_of_month)
+            .group_by(Expense.kategori)
+            .order_by(func.sum(Expense.nominal).desc())  # Urutkan berdasarkan nominal tertinggi
+            .all()
+        )
+
+        # Daftar warna statis untuk setiap kategori
+        colors = ['#007BFF', '#28A745', '#FFC107', '#DC3545', '#6C757D',  '#17A2B8', '#6610F2', '#E83E8C', '#FD7E14', '#20C997']
 
 
+        # Proses data untuk format JSON
+        categories = [entry.kategori for entry in monthly_data]  # Nama kategori
+        values = [float(entry.total) for entry in monthly_data]  # Nilai nominal
+        category_colors = colors[:len(categories)]  # Warna sesuai jumlah kategori
+
+        # Format output JSON
+        return jsonify({
+            "categories": categories,
+            "values": values,
+            "colors": category_colors  # Tambahkan warna ke respons
+        })
+
+    except Exception as e:
+        # Handle error jika terjadi masalah
+        return jsonify({"error": str(e)}), 500
 if __name__ == "__main__":
     app.run(debug=True)
