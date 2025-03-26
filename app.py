@@ -364,5 +364,7 @@ def get_monthly_category_data():
     except Exception as e:
         # Handle error jika terjadi masalah
         return jsonify({"error": str(e)}), 500
+    
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5111)

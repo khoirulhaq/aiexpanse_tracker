@@ -278,7 +278,7 @@ initializeBarChart();
 
 
 // Doughnut Chart 2 (Revenue Breakdown)
-var doughnutChart2 = echarts.init(document.getElementById('doughnutChart2'));
+var Prioritas = echarts.init(document.getElementById('Prioritas'));
 var doughnutOption2 = {
   title: {
     text: 'Revenue Breakdown',
@@ -297,7 +297,7 @@ var doughnutOption2 = {
     color: ['#28A745', '#FFC107', '#007BFF']
   }]
 };
-doughnutChart2.setOption(doughnutOption2);
+Prioritas.setOption(doughnutOption2);
 
 // Doughnut Chart 3 (Revenue Breakdown)
 var doughnutChart3 = echarts.init(document.getElementById('doughnutChart3'));
@@ -433,7 +433,7 @@ doughnutChart5.setOption(doughnutOption5);
 window.addEventListener('resize', function() {
     lineChart.resize();
     doughnutChart1.resize();
-    doughnutChart2.resize();
+    Prioritas.resize();
     barChart.resize();
   });
   
