@@ -1,0 +1,88 @@
+{% extends 'index.html' %}
+
+{% block content %}
+    <h1 class="text-2xl font-bold mb-4">Expense List</h1>
+
+    <!-- Form Filter -->
+    <form method="GET" action="{{ url_for('analytics') }}" class="mb-4 space-x-4">
+        <div class="flex space-x-4 mb-4">
+            <div class="w-1/4">
+                <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
+                <input type="date" name="start_date" value="{{ start_date }}" class="mt-1 p-2 w-full border border-gray-300 rounded-md">
+            </div>
+            <div class="w-1/4">
+                <label for="end_date" class="block text-sm font-medium text-gray-700">End Date</label>
+                <input type="date" name="end_date" value="{{ end_date }}" class="mt-1 p-2 w-full border border-gray-300 rounded-md">
+            </div>
+            <div class="w-1/4">
+                <label for="description" class="block text-sm font-medium text-gray-700">Catatan</label>
+                <input type="text" name="description" value="{{ description }}" class="mt-1 p-2 w-full border border-gray-300 rounded-md">
+            </div>
+            <div class="w-1/4 flex items-end">
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Filter</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Tabel Data Pengeluaran -->
+    <table class="min-w-full bg-white border border-gray-300 rounded-lg">
+        <thead class="bg-gray-100">
+            <tr>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Tanggal</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Katergori</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Nominal</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Catatan</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Prioritas</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Dompet</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for expense in expenses %}
+            <tr>
+                <td class="px-4 py-2">{{ expense.tanggal }}</td>
+                <td class="px-4 py-2">{{ expense.kategori }}</td>
+                <td class="px-4 py-2">{{ expense.nominal }}</td>
+                <td class="px-4 py-2">{{ expense.catatan }}</td>
+                <td class="px-4 py-2">{{ expense.prioritas }}</td>
+                <td class="px-4 py-2">{{ expense.dompet }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="mt-4 space-x-4">
+        {% if page > 1 %}
+        <a href="{{ url_for('analytics', page=page-1, start_date=start_date, end_date=end_date, description=description) }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Previous</a>
+        {% endif %}
+        {% if page < total_pages %}
+        <a href="{{ url_for('analytics', page=page+1, start_date=start_date, end_date=end_date, description=description) }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Next</a>
+        {% endif %}
+    </div>
+
+    <div class="dashboard">
+    
+    <!-- =============================================================== -->
+    
+      <!-- Baris pertama -->
+      <div class="card card-large">
+        <h2 class="card-title">Line Chart</h2>
+        <div id="AN-LineChart" style="width: 100%; height: 300px;"></div>
+      </div>
+      <div class="card card-medium">
+        <h2 class="card-title">Dompet</h2>
+        <div id="AN-DoghnutChart" style="width: 100%; height: 300px;"></div>
+      </div>
+    
+
+{% endblock %}
+
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/analytics.css') }}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.2/dist/echarts.min.js"></script> <!-- ECharts -->
+<script src="{{ url_for('static', filename='js/analytics.js') }}"></script> <!-- Home JS -->
+{% endblock %}

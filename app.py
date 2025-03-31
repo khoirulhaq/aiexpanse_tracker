@@ -10,6 +10,138 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'exptrackerai'  # Ganti dengan string yang lebih aman
 db.init_app(app)
 
+
+# ====== ANALYTICS =======
+@app.route("/analytics")
+def analytics():
+    start_date = request.args.get("start_date", "")
+    end_date = request.args.get("end_date", "")
+    description = request.args.get("description", "")
+    page = request.args.get("page", 1, type=int)
+    
+    # Menentukan query dengan filter
+    query = Expense.query
+    if start_date:
+        query = query.filter(Expense.tanggal >= datetime.strptime(start_date, "%Y-%m-%d"))
+    if end_date:
+        query = query.filter(Expense.tanggal <= datetime.strptime(end_date, "%Y-%m-%d"))
+    if description:
+        query = query.filter(Expense.catatan.like(f"%{description}%"))
+
+    # Menambahkan pengurutan berdasarkan tanggal secara descending
+    query = query.order_by(Expense.tanggal.desc())
+
+    # Pagination
+    expenses = query.paginate(page=page, per_page=5, error_out=False)  # 10 item per halaman
+    total_pages = expenses.pages
+
+    return render_template(
+        "analytics.html", 
+        expenses=expenses.items, 
+        page=page, 
+        total_pages=total_pages, 
+        start_date=start_date, 
+        end_date=end_date, 
+        description=description
+    )
+# API untuk Line Chart (Last 12-Months Expenses)
+@app.route('/api/analytics-line-chart-data', methods=['GET'])
+def get_line_chart_data():
+    try:
+        # Ambil parameter filter dari query string
+        start_date = request.args.get("start_date")
+        end_date = request.args.get("end_date")
+        description = request.args.get("description")
+
+        # Default ke 1 tahun terakhir jika start_date atau end_date kosong
+        today = datetime.today()
+        if not start_date:
+            start_date = (today - timedelta(days=365)).strftime("%Y-%m-%d")  # 1 tahun sebelum hari ini
+        if not end_date:
+            end_date = today.strftime("%Y-%m-%d")  # Hari ini
+
+        # Query untuk mengambil total pengeluaran per bulan
+        query = db.session.query(
+            extract('year', Expense.tanggal).label('year'),
+            extract('month', Expense.tanggal).label('month'),
+            func.sum(Expense.nominal).label('total')
+        )
+
+        # Filter berdasarkan tanggal
+        query = query.filter(Expense.tanggal >= datetime.strptime(start_date, "%Y-%m-%d"))
+        query = query.filter(Expense.tanggal <= datetime.strptime(end_date, "%Y-%m-%d"))
+
+        # Filter berdasarkan deskripsi (jika ada)
+        if description:
+            query = query.filter(Expense.catatan.like(f"%{description}%"))
+
+        monthly_data = (
+            query.group_by(extract('year', Expense.tanggal), extract('month', Expense.tanggal))
+            .order_by(extract('year', Expense.tanggal), extract('month', Expense.tanggal))
+            .all()
+        )
+
+        # Proses data untuk format JSON
+        labels = [f"{int(entry.year)}-{int(entry.month):02d}" for entry in monthly_data]  # Format YYYY-MM
+        values = [float(entry.total) for entry in monthly_data]  # Nilai nominal
+
+        return jsonify({
+            "labels": labels,
+            "values": values
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# API untuk Doughnut Chart (Dompet)
+@app.route('/api/analytics-doughnut-chart-data', methods=['GET'])
+def get_doughnut_chart_data():
+    try:
+        # Ambil parameter filter dari query string
+        start_date = request.args.get("start_date")
+        end_date = request.args.get("end_date")
+        description = request.args.get("description")
+
+        # Default ke 1 tahun terakhir jika start_date atau end_date kosong
+        today = datetime.today()
+        if not start_date:
+            start_date = (today - timedelta(days=365)).strftime("%Y-%m-%d")  # 1 tahun sebelum hari ini
+        if not end_date:
+            end_date = today.strftime("%Y-%m-%d")  # Hari ini
+
+        # Query untuk mengambil total pengeluaran per dompet
+        query = db.session.query(
+            Expense.dompet,
+            func.sum(Expense.nominal).label('total')
+        )
+
+        # Filter berdasarkan tanggal
+        query = query.filter(Expense.tanggal >= datetime.strptime(start_date, "%Y-%m-%d"))
+        query = query.filter(Expense.tanggal <= datetime.strptime(end_date, "%Y-%m-%d"))
+
+        # Filter berdasarkan deskripsi (jika ada)
+        if description:
+            query = query.filter(Expense.catatan.like(f"%{description}%"))
+
+        wallet_data = (
+            query.group_by(Expense.dompet)
+            .order_by(func.sum(Expense.nominal).desc())
+            .all()
+        )
+
+        # Proses data untuk format JSON
+        labels = [entry.dompet for entry in wallet_data]  # Nama dompet
+        values = [float(entry.total) for entry in wallet_data]  # Nilai nominal
+
+        return jsonify({
+            "labels": labels,
+            "values": values
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # ====== DATA =======
 
 @app.route("/data", methods=["GET", "POST"])
