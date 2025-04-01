@@ -3,6 +3,8 @@ from models import db, Expense
 from datetime import datetime, timedelta
 from sqlalchemy import extract, func
 import pandas as pd
+from calendar import monthrange
+from sqlalchemy.exc import SQLAlchemyError
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///expenses_track.db'  # Gunakan SQLite sebagai database
@@ -420,18 +422,40 @@ def get_sales_data():
 @app.route('/api/revenue-data', methods=['GET'])
 def get_revenue_data():
     try:
-        # Mendapatkan tanggal awal dan akhir bulan ini
-        today = datetime.today()
-        first_day_of_month = datetime(today.year, today.month, 1)  # Awal bulan ini
-        next_month = first_day_of_month.replace(day=28) + timedelta(days=4)  # Hitung tanggal pertama bulan depan
-        last_day_of_month = next_month - timedelta(days=next_month.day)  # Akhir bulan ini
+        # Ambil parameter opsional
+        start_date_str = request.args.get("start_date")
+        end_date_str = request.args.get("end_date")
 
-        # Query untuk mengambil semua data expense bulan ini
+        # Validasi tanggal
+        try:
+            start_date = datetime.strptime(start_date_str, "%Y-%m-%d") if start_date_str else None
+            end_date = datetime.strptime(end_date_str, "%Y-%m-%d") if end_date_str else None
+        except ValueError:
+            return jsonify({"error": "Invalid date format. Use YYYY-MM-DD"}), 400
+
+        # Default ke bulan ini jika tidak ada parameter
+        today = datetime.today()
+        first_day_of_month = datetime(today.year, today.month, 1)
+        _, last_day = monthrange(today.year, today.month)
+        last_day_of_month = datetime(today.year, today.month, last_day)
+
+        # Mundurkan start_date sehari untuk memastikan mencakup seluruh data di tanggal 1
+        start_date = start_date or (first_day_of_month - timedelta(days=1))
+        end_date = end_date or (last_day_of_month + timedelta(days=1))
+
+        print(f"Start Date: {start_date}, End Date: {end_date}")
+
+        # Query untuk mengambil semua data expense dalam rentang tanggal
         query_result = (
             db.session.query(Expense.dompet, Expense.nominal)
-            .filter(Expense.tanggal >= first_day_of_month, Expense.tanggal <= last_day_of_month)
+            .filter(Expense.tanggal >= start_date, Expense.tanggal < end_date)
             .all()
         )
+        print(f"Query Result: {query_result}")
+
+        # Debugging: Cetak query SQL
+        print(str(db.session.query(Expense.dompet, Expense.nominal)
+                  .filter(Expense.tanggal >= start_date, Expense.tanggal < end_date).statement.compile(dialect=db.engine.dialect)))
 
         # Konversi hasil query ke Pandas DataFrame
         data = [{"dompet": row.dompet, "nominal": float(row.nominal)} for row in query_result]
@@ -442,48 +466,73 @@ def get_revenue_data():
             return jsonify({"revenue": []})
 
         # Menghitung total nominal untuk setiap dompet
-        wallet_totals = df.groupby('dompet')['nominal'].sum().reset_index(name='total')
+        wallet_totals = df.groupby('dompet', as_index=False)['nominal'].sum()
 
         # Konversi hasil ke format JSON
         revenue_data = [
-            {"value": row['total'], "name": row['dompet']}
+            {"value": row['nominal'], "name": row['dompet']}
             for _, row in wallet_totals.iterrows()
         ]
 
         return jsonify({"revenue": revenue_data})
 
+    except SQLAlchemyError as e:
+        # Handle error database
+        return jsonify({"error": "Database error", "details": str(e)}), 500
     except Exception as e:
-        # Handle error jika terjadi masalah
-        return jsonify({"error": str(e)}), 500
+        # Handle error lainnya
+        return jsonify({"error": "Unexpected error", "details": str(e)}), 500
     
+
 @app.route('/api/monthly-category-data', methods=['GET'])
 def get_monthly_category_data():
     try:
         # Hitung tanggal awal dan akhir bulan ini
         today = datetime.today()
+        print(f"Today: {today}")
         first_day_of_month = datetime(today.year, today.month, 1)  # Awal bulan ini
-        next_month = first_day_of_month.replace(day=28) + timedelta(days=4)  # Hitung tanggal pertama bulan depan
-        last_day_of_month = next_month - timedelta(days=next_month.day)  # Akhir bulan ini
+        _, last_day = monthrange(today.year, today.month)
+        last_day_of_month = datetime(today.year, today.month, last_day)  # Akhir bulan ini
 
-        # Query untuk mengambil data per kategori bulan ini
-        monthly_data = (
-            db.session.query(
-                Expense.kategori,
-                func.sum(Expense.nominal).label('total')
-            )
-            .filter(Expense.tanggal >= first_day_of_month, Expense.tanggal <= last_day_of_month)
-            .group_by(Expense.kategori)
-            .order_by(func.sum(Expense.nominal).desc())  # Urutkan berdasarkan nominal tertinggi
+        # Mundurkan start_date sehari untuk memastikan mencakup seluruh data di tanggal 1
+        start_date = first_day_of_month - timedelta(days=1)
+        end_date = last_day_of_month + timedelta(days=1)
+
+        # Query untuk mengambil semua data expense bulan ini
+        query_result = (
+            db.session.query(Expense.kategori, Expense.nominal, Expense.tanggal)
+            .filter(Expense.tanggal >= start_date, Expense.tanggal < end_date)
             .all()
         )
+        print(f"start_date: {start_date}, end_date: {end_date}")
+        print(f"Query Result: {query_result}")
+
+        # Konversi hasil query ke Pandas DataFrame
+        data = [{"kategori": row.kategori, "nominal": float(row.nominal), "tanggal": row.tanggal} for row in query_result]
+        df = pd.DataFrame(data)
+
+        # Jika tidak ada data, kembalikan list kosong
+        if df.empty:
+            return jsonify({
+                "categories": [],
+                "values": [],
+                "colors": []
+            })
+
+        # Filter dan proses data menggunakan Pandas
+        # Menghitung total nominal untuk setiap kategori
+        monthly_data = df.groupby('kategori', as_index=False)['nominal'].sum()
+
+        # Urutkan berdasarkan nominal tertinggi
+        monthly_data = monthly_data.sort_values(by='nominal', ascending=False)
 
         # Daftar warna statis untuk setiap kategori
-        colors = ['#007BFF', '#28A745', '#FFC107', '#DC3545', '#6C757D',  '#17A2B8', '#6610F2', '#E83E8C', '#FD7E14', '#20C997']
-
+        colors = ['#007BFF', '#28A745', '#FFC107', '#DC3545', '#6C757D', 
+                  '#17A2B8', '#6610F2', '#E83E8C', '#FD7E14', '#20C997']
 
         # Proses data untuk format JSON
-        categories = [entry.kategori for entry in monthly_data]  # Nama kategori
-        values = [float(entry.total) for entry in monthly_data]  # Nilai nominal
+        categories = monthly_data['kategori'].tolist()  # Nama kategori
+        values = monthly_data['nominal'].tolist()  # Nilai nominal
         category_colors = colors[:len(categories)]  # Warna sesuai jumlah kategori
 
         # Format output JSON
