@@ -134,6 +134,71 @@ async function initializeDoughnutChart() {
 initializeDoughnutChart();
 
 
+// Prioritas
+
+// Inisialisasi grafik Doughnut setelah data diterima
+async function initializePriority() {
+  const apiData = await fetchData('/api/home-priority'); // Endpoint API untuk data prioritas Breakdown
+
+  if (apiData) {
+      // Data diambil dari API
+      const doughnutData = apiData.prioritas; // Misalnya: [{value: 300, name: 'Product A'}, ...]
+
+      // Doughnut Chart 1 (prioritas Breakdown)
+      var doughnutChart1 = echarts.init(document.getElementById('Prioritas'));
+      var doughnutOption1 = {
+          tooltip: {
+              trigger: 'item', // Tooltip muncul saat menghover item
+              formatter: function (params) {
+                  // Format tooltip dengan nama dan nilai nominal dalam mata uang Indonesia
+                  return `${params.name}: ${formatCurrency(params.value)}`;
+              }
+          },
+          legend: {
+              top: '5%', // Legend ditempatkan di bagian atas
+              left: 'center' // Legend berada di tengah horizontal
+          },
+          series: [
+              {
+                  name: 'Prioritas',
+                  type: 'pie',
+                  radius: ['40%', '70%'], // Ukuran pie chart
+                  avoidLabelOverlap: false,
+                  itemStyle: {
+                      borderRadius: 10, // Border melengkung
+                      borderColor: '#fff', // Warna border putih
+                      borderWidth: 2 // Ketebalan border
+                  },
+                  label: {
+                      show: false, // Label tidak ditampilkan secara default
+                      position: 'center'
+                  },
+                  emphasis: {
+                      label: {
+                          show: true, // Label muncul saat hover
+                          fontSize: 40, // Ukuran font besar
+                          fontWeight: 'bold', // Font tebal
+                          formatter: function (params) {
+                              // Format label dengan nama item
+                              return params.name;
+                          }
+                      }
+                  },
+                  labelLine: {
+                      show: false // Tidak menampilkan garis label
+                  },
+                  data: doughnutData, // Data dari API
+                  color: ['#007BFF', '#28A745', '#FFC107', '#DC3545', '#6C757D'] // Warna tetap atau bisa juga diambil dari API
+              }
+          ]
+      };
+      doughnutChart1.setOption(doughnutOption1);
+  }
+}
+
+// Panggil fungsi untuk memulai grafik
+initializePriority();
+
 function setTextColor(elementId, value) {
   const element = document.getElementById(elementId);
   
@@ -277,27 +342,7 @@ async function initializeBarChart() {
 initializeBarChart();
 
 
-// Doughnut Chart 2 (Revenue Breakdown)
-var Prioritas = echarts.init(document.getElementById('Prioritas'));
-var doughnutOption2 = {
-  title: {
-    text: 'Revenue Breakdown',
-    subtext: 'Product A, B, C',
-    left: 'center'
-  },
-  series: [{
-    name: 'Revenue',
-    type: 'pie',
-    radius: ['40%', '70%'],
-    data: [
-      {value: 250, name: 'Product A'},
-      {value: 100, name: 'Product B'},
-      {value: 200, name: 'Product C'}
-    ],
-    color: ['#28A745', '#FFC107', '#007BFF']
-  }]
-};
-Prioritas.setOption(doughnutOption2);
+
 
 // Doughnut Chart 3 (Revenue Breakdown)
 var doughnutChart3 = echarts.init(document.getElementById('doughnutChart3'));

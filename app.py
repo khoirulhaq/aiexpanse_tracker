@@ -419,6 +419,71 @@ def get_sales_data():
     })
 
 
+@app.route('/api/home-priority', methods=['GET'])
+def get_priority_data():
+    try:
+        # Ambil parameter opsional
+        start_date_str = request.args.get("start_date")
+        end_date_str = request.args.get("end_date")
+
+        # Validasi tanggal
+        try:
+            start_date = datetime.strptime(start_date_str, "%Y-%m-%d") if start_date_str else None
+            end_date = datetime.strptime(end_date_str, "%Y-%m-%d") if end_date_str else None
+        except ValueError:
+            return jsonify({"error": "Invalid date format. Use YYYY-MM-DD"}), 400
+
+        # Default ke bulan ini jika tidak ada parameter
+        today = datetime.today()
+        first_day_of_month = datetime(today.year, today.month, 1)
+        _, last_day = monthrange(today.year, today.month)
+        last_day_of_month = datetime(today.year, today.month, last_day)
+
+        # Mundurkan start_date sehari untuk memastikan mencakup seluruh data di tanggal 1
+        start_date = start_date or (first_day_of_month - timedelta(days=1))
+        end_date = end_date or (last_day_of_month + timedelta(days=1))
+
+        print(f"Start Date: {start_date}, End Date: {end_date}")
+
+        # Query untuk mengambil semua data expense dalam rentang tanggal
+        query_result = (
+            db.session.query(Expense.prioritas, Expense.nominal)
+            .filter(Expense.tanggal >= start_date, Expense.tanggal < end_date)
+            .all()
+        )
+        print(f"Query Result: {query_result}")
+
+        # Debugging: Cetak query SQL
+        print(str(db.session.query(Expense.prioritas, Expense.nominal)
+                  .filter(Expense.tanggal >= start_date, Expense.tanggal < end_date).statement.compile(dialect=db.engine.dialect)))
+
+        # Konversi hasil query ke Pandas DataFrame
+        data = [{"prioritas": row.prioritas, "nominal": float(row.nominal)} for row in query_result]
+        df = pd.DataFrame(data)
+
+        # Jika tidak ada data, kembalikan list kosong
+        if df.empty:
+            return jsonify({"prioritas": []})
+
+        # Menghitung total nominal untuk setiap dompet
+        wallet_totals = df.groupby('prioritas', as_index=False)['nominal'].sum()
+
+        # Konversi hasil ke format JSON
+        revenue_data = [
+            {"value": row['nominal'], "name": row['prioritas']}
+            for _, row in wallet_totals.iterrows()
+        ]
+
+        return jsonify({"prioritas": revenue_data})
+
+    except SQLAlchemyError as e:
+        # Handle error database
+        return jsonify({"error": "Database error", "details": str(e)}), 500
+    except Exception as e:
+        # Handle error lainnya
+        return jsonify({"error": "Unexpected error", "details": str(e)}), 500
+
+
 @app.route('/api/revenue-data', methods=['GET'])
 def get_revenue_data():
     try:
