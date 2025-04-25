@@ -28,7 +28,7 @@
     {% block extra_css %}
     {% endblock %}
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-900 min-h-screen text-gray-100">
     <div class="flex relative">
         <!-- Mobile Sidebar Toggle Button -->
         <button id="mobileSidebarToggle" class="fixed z-50 top-4 left-4 p-2 bg-blue-600 text-white rounded-lg shadow-lg md:hidden hover:bg-blue-700 transition-colors duration-200">
@@ -36,11 +36,11 @@
         </button>
 
         <!-- Sidebar Container -->
-        <div id="sidebarContainer" class="fixed inset-y-0 left-0 transform -translate-x-full md:translate-x-0 w-64 bg-gradient-to-b from-gray-800 to-gray-900 text-white transition-transform duration-300 ease-in-out z-40 shadow-xl">
+        <div id="sidebarContainer" class="fixed inset-y-0 left-0 transform -translate-x-full md:translate-x-0 w-64 bg-gradient-to-b from-gray-900 to-black text-white transition-transform duration-300 ease-in-out z-40 shadow-xl">
             <!-- Sidebar Content -->
             <div class="flex flex-col h-full">
                 <!-- Sidebar Header -->
-                <div class="p-6 border-b border-gray-700">
+                <div class="p-6 border-b border-gray-800">
                     <h2 class="text-2xl font-bold text-center bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">Expense Tracker</h2>
                 </div>
 
@@ -48,19 +48,19 @@
                 <nav class="flex-1 py-6 overflow-y-auto">
                     <ul class="space-y-2 px-4">
                         <li>
-                            <a href="{{ url_for('home') }}" class="sidebar-link flex items-center p-3 hover:bg-gray-700 rounded-lg group transition-all duration-200">
+                            <a href="{{ url_for('home') }}" class="sidebar-link flex items-center p-3 hover:bg-gray-800 rounded-lg group transition-all duration-200">
                                 <i class="fas fa-home mr-3 text-blue-400 group-hover:text-white"></i>
                                 <span class="font-medium">Home</span>
                             </a>
                         </li>
                         <li>
-                            <a href="{{ url_for('data') }}" class="sidebar-link flex items-center p-3 hover:bg-gray-700 rounded-lg group transition-all duration-200">
+                            <a href="{{ url_for('data') }}" class="sidebar-link flex items-center p-3 hover:bg-gray-800 rounded-lg group transition-all duration-200">
                                 <i class="fas fa-database mr-3 text-blue-400 group-hover:text-white"></i>
                                 <span class="font-medium">Data</span>
                             </a>
                         </li>
                         <li>
-                            <a href="{{ url_for('analytics') }}" class="sidebar-link flex items-center p-3 hover:bg-gray-700 rounded-lg group transition-all duration-200">
+                            <a href="{{ url_for('analytics') }}" class="sidebar-link flex items-center p-3 hover:bg-gray-800 rounded-lg group transition-all duration-200">
                                 <i class="fas fa-chart-pie mr-3 text-blue-400 group-hover:text-white"></i>
                                 <span class="font-medium">Analytics</span>
                             </a>

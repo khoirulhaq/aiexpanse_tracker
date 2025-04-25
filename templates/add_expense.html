@@ -1,10 +1,10 @@
 {% extends 'index.html' %}
 
 {% block content %}
-<div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+<div class="bg-gray-800 rounded-xl shadow-lg p-6 mb-6 border border-gray-700">
     <div class="flex items-center justify-between mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">Add New Expense</h1>
-        <a href="{{ url_for('data') }}" class="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors duration-200">
+        <h1 class="text-3xl font-bold text-gray-100">Add New Expense</h1>
+        <a href="{{ url_for('data') }}" class="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors duration-200">
             <i class="fas fa-arrow-left mr-2"></i>
             Back to List
         </a>
@@ -14,52 +14,52 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Description -->
             <div class="space-y-2">
-                <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                <label for="description" class="block text-sm font-medium text-gray-300">Description</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="fas fa-pencil-alt text-gray-400"></i>
                     </div>
                     <input type="text" id="description" name="description" 
-                           class="w-full pl-10 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                           class="w-full pl-10 p-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-100" 
                            placeholder="Enter expense description" required>
                 </div>
             </div>
 
             <!-- Amount -->
             <div class="space-y-2">
-                <label for="amount" class="block text-sm font-medium text-gray-700">Amount</label>
+                <label for="amount" class="block text-sm font-medium text-gray-300">Amount</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="fas fa-dollar-sign text-gray-400"></i>
                     </div>
                     <input type="number" id="amount" name="amount" 
-                           class="w-full pl-10 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                           class="w-full pl-10 p-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-100" 
                            placeholder="Enter amount" required>
                 </div>
             </div>
 
             <!-- Date -->
             <div class="space-y-2">
-                <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
+                <label for="date" class="block text-sm font-medium text-gray-300">Date</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="fas fa-calendar text-gray-400"></i>
                     </div>
                     <input type="date" id="date" name="date" 
-                           class="w-full pl-10 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                           class="w-full pl-10 p-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-100" 
                            required>
                 </div>
             </div>
 
             <!-- Category -->
             <div class="space-y-2">
-                <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
+                <label for="category" class="block text-sm font-medium text-gray-300">Category</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="fas fa-tag text-gray-400"></i>
                     </div>
                     <select id="category" name="category" 
-                            class="w-full pl-10 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors appearance-none" 
+                            class="w-full pl-10 p-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors appearance-none text-gray-100" 
                             required>
                         <option value="" disabled selected>Select category</option>
                         {% for category in category_choices %}
@@ -74,13 +74,13 @@
 
             <!-- Priority -->
             <div class="space-y-2">
-                <label for="priority" class="block text-sm font-medium text-gray-700">Priority</label>
+                <label for="priority" class="block text-sm font-medium text-gray-300">Priority</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="fas fa-flag text-gray-400"></i>
                     </div>
                     <select id="priority" name="priority" 
-                            class="w-full pl-10 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors appearance-none" 
+                            class="w-full pl-10 p-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors appearance-none text-gray-100" 
                             required>
                         <option value="" disabled selected>Select priority</option>
                         {% for priority in priority_choices %}
@@ -95,13 +95,13 @@
 
             <!-- Wallet -->
             <div class="space-y-2">
-                <label for="wallet" class="block text-sm font-medium text-gray-700">Wallet</label>
+                <label for="wallet" class="block text-sm font-medium text-gray-300">Wallet</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="fas fa-wallet text-gray-400"></i>
                     </div>
                     <select id="wallet" name="wallet" 
-                            class="w-full pl-10 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors appearance-none" 
+                            class="w-full pl-10 p-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors appearance-none text-gray-100" 
                             required>
                         <option value="" disabled selected>Select wallet</option>
                         {% for wallet in wallet_choices %}
@@ -144,17 +144,17 @@
     }
     
     ::-webkit-scrollbar-track {
-        background: #f1f1f1;
+        background: #1f2937;
         border-radius: 4px;
     }
     
     ::-webkit-scrollbar-thumb {
-        background: #888;
+        background: #4b5563;
         border-radius: 4px;
     }
     
     ::-webkit-scrollbar-thumb:hover {
-        background: #555;
+        background: #6b7280;
     }
 </style>
 {% endblock %}

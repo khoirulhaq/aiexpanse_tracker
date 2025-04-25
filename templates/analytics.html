@@ -1,50 +1,50 @@
 {% extends 'index.html' %}
 
 {% block content %}
-    <h1 class="text-2xl font-bold mb-4">Analytics</h1>
+    <h1 class="text-2xl font-bold mb-4 text-gray-100">Analytics</h1>
 
     <!-- Form Filter -->
     <form method="GET" action="{{ url_for('analytics') }}" class="mb-4 space-x-4">
         <div class="flex space-x-4 mb-4">
             <div class="w-1/4">
-                <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
-                <input type="date" name="start_date" value="{{ start_date }}" class="mt-1 p-2 w-full border border-gray-300 rounded-md">
+                <label for="start_date" class="block text-sm font-medium text-gray-300">Start Date</label>
+                <input type="date" name="start_date" value="{{ start_date }}" class="mt-1 p-2 w-full bg-gray-700 border border-gray-600 rounded-md text-gray-100">
             </div>
             <div class="w-1/4">
-                <label for="end_date" class="block text-sm font-medium text-gray-700">End Date</label>
-                <input type="date" name="end_date" value="{{ end_date }}" class="mt-1 p-2 w-full border border-gray-300 rounded-md">
+                <label for="end_date" class="block text-sm font-medium text-gray-300">End Date</label>
+                <input type="date" name="end_date" value="{{ end_date }}" class="mt-1 p-2 w-full bg-gray-700 border border-gray-600 rounded-md text-gray-100">
             </div>
             <div class="w-1/4">
-                <label for="description" class="block text-sm font-medium text-gray-700">Catatan</label>
-                <input type="text" name="description" value="{{ description }}" class="mt-1 p-2 w-full border border-gray-300 rounded-md">
+                <label for="description" class="block text-sm font-medium text-gray-300">Catatan</label>
+                <input type="text" name="description" value="{{ description }}" class="mt-1 p-2 w-full bg-gray-700 border border-gray-600 rounded-md text-gray-100">
             </div>
             <div class="w-1/4 flex items-end">
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Filter</button>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Filter</button>
             </div>
         </div>
     </form>
 
     <!-- Tabel Data Pengeluaran -->
-    <table class="min-w-full bg-white border border-gray-300 rounded-lg">
-        <thead class="bg-gray-100">
+    <table class="min-w-full bg-gray-800 border border-gray-700 rounded-lg">
+        <thead class="bg-gray-700">
             <tr>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Tanggal</th>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Katergori</th>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Nominal</th>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Catatan</th>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Prioritas</th>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Dompet</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-300">Tanggal</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-300">Katergori</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-300">Nominal</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-300">Catatan</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-300">Prioritas</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-300">Dompet</th>
             </tr>
         </thead>
         <tbody>
             {% for expense in expenses %}
-            <tr>
-                <td class="px-4 py-2">{{ expense.tanggal }}</td>
-                <td class="px-4 py-2">{{ expense.kategori }}</td>
-                <td class="px-4 py-2">{{ expense.nominal }}</td>
-                <td class="px-4 py-2">{{ expense.catatan }}</td>
-                <td class="px-4 py-2">{{ expense.prioritas }}</td>
-                <td class="px-4 py-2">{{ expense.dompet }}</td>
+            <tr class="hover:bg-gray-700">
+                <td class="px-4 py-2 text-gray-300">{{ expense.tanggal }}</td>
+                <td class="px-4 py-2 text-gray-300">{{ expense.kategori }}</td>
+                <td class="px-4 py-2 text-gray-300">{{ expense.nominal }}</td>
+                <td class="px-4 py-2 text-gray-300">{{ expense.catatan }}</td>
+                <td class="px-4 py-2 text-gray-300">{{ expense.prioritas }}</td>
+                <td class="px-4 py-2 text-gray-300">{{ expense.dompet }}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -53,10 +53,10 @@
     <!-- Pagination -->
     <div class="mt-4 space-x-4">
         {% if page > 1 %}
-        <a href="{{ url_for('analytics', page=page-1, start_date=start_date, end_date=end_date, description=description) }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Previous</a>
+        <a href="{{ url_for('analytics', page=page-1, start_date=start_date, end_date=end_date, description=description) }}" class="bg-gray-700 text-gray-300 px-4 py-2 rounded hover:bg-gray-600">Previous</a>
         {% endif %}
         {% if page < total_pages %}
-        <a href="{{ url_for('analytics', page=page+1, start_date=start_date, end_date=end_date, description=description) }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Next</a>
+        <a href="{{ url_for('analytics', page=page+1, start_date=start_date, end_date=end_date, description=description) }}" class="bg-gray-700 text-gray-300 px-4 py-2 rounded hover:bg-gray-600">Next</a>
         {% endif %}
     </div>
 
@@ -66,11 +66,11 @@
     
       <!-- Baris pertama -->
       <div class="card card-large">
-        <h2 class="card-title">Line Chart</h2>
+        <h2 class="card-title text-gray-800">Line Chart</h2>
         <div id="AN-LineChart" style="width: 100%; height: 300px;"></div>
       </div>
       <div class="card card-medium">
-        <h2 class="card-title">Dompet</h2>
+        <h2 class="card-title text-gray-800">Dompet</h2>
         <div id="AN-DoghnutChart" style="width: 100%; height: 300px;"></div>
       </div>
     
@@ -80,6 +80,27 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/analytics.css') }}">
+<style>
+    /* Custom scrollbar for better UX */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #1f2937;
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: #4b5563;
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #6b7280;
+    }
+</style>
 {% endblock %}
 
 {% block extra_js %}
